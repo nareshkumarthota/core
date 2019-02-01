@@ -2,6 +2,8 @@ package log
 
 import (
 	"fmt"
+
+	"github.com/project-flogo/core/support/log/zapcores"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -138,7 +140,7 @@ func toZapLogLevel(level Level) zapcore.Level {
 func newZapRootLogger(name string, format Format) Logger {
 
 	zl, lvl, _ := newZapLogger(format)
-
+	zl = appendCore(zl)
 	var rootLogger Logger
 	if name == "" {
 		rootLogger = &zapLoggerImpl{loggerLevel: lvl, mainLogger: zl.Sugar()}
@@ -148,10 +150,24 @@ func newZapRootLogger(name string, format Format) Logger {
 
 	if traceEnabled {
 		tl, _, _ := newZapTraceLogger(format)
+		tl = appendCore(tl)
 		traceLogger = tl.Sugar()
 	}
 
 	return rootLogger
+}
+
+func appendCore(zapLogr *zap.Logger) *zap.Logger {
+	if len(zapcores.GetZapCoreMap()) != 0 {
+		for _, value := range zapcores.GetZapCoreMap() {
+			zapLogr = zapLogr.WithOptions(
+				zap.WrapCore(
+					func(c zapcore.Core) zapcore.Core {
+						return zapcore.NewTee(value, zapLogr.Core())
+					}))
+		}
+	}
+	return zapLogr
 }
 
 func newZapLogger(logFormat Format) (*zap.Logger, *zap.AtomicLevel, error) {
