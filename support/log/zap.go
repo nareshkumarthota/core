@@ -181,16 +181,16 @@ func newZapRootLogger(name string) Logger {
 
 func newZapLogger() (*zap.Logger, *zap.AtomicLevel, error) {
 
-	zl, err := zapcores.LogCfg.Build(zap.AddCallerSkip(1))
+	zl, err := zapcores.GetDefaultLogConfig().Build(zap.AddCallerSkip(1))
 
-	return zl, zapcores.LogLvl, err
+	return zl, zapcores.GetDefaultLogLevl(), err
 }
 
 func newZapTraceLogger() (*zap.Logger, *zap.AtomicLevel, error) {
 
-	zl, err := zapcores.TraceLogCfg.Build(zap.AddCallerSkip(1))
+	zl, err := zapcores.GetDefaultTraceLogConfig().Build(zap.AddCallerSkip(1))
 
-	return zl, zapcores.TraceLogLvl, err
+	return zl, zapcores.GetDefaultTraceLogLevl(), err
 }
 
 func newZapChildLogger(logger Logger, name string) (Logger, error) {

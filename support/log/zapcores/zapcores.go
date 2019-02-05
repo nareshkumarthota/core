@@ -23,17 +23,17 @@ var zapCoreMap map[string]zapcore.Core
 // zapTraceCoreMap holds trace logger core impl
 var zapTraceCoreMap map[string]zapcore.Core
 
-// LogCfg Default log configuration for core creation
-var LogCfg zap.Config
+// logCfg Default log configuration for core creation
+var logCfg zap.Config
 
-// TraceLogCfg Default trace log configuration for core creation
-var TraceLogCfg zap.Config
+// traceLogCfg Default trace log configuration for core creation
+var traceLogCfg zap.Config
 
-// LogLvl log level variable which will control type of logs
-var LogLvl *zap.AtomicLevel
+// logLvl log level variable which will control type of logs
+var logLvl *zap.AtomicLevel
 
-// TraceLogLvl log level variable which will control type of logs
-var TraceLogLvl *zap.AtomicLevel
+// traceLogLvl log level variable which will control type of logs
+var traceLogLvl *zap.AtomicLevel
 
 func init() {
 
@@ -65,6 +65,22 @@ func GetZapTraceCoreMap() map[string]zapcore.Core {
 	return zapTraceCoreMap
 }
 
+func GetDefaultLogConfig() zap.Config {
+	return logCfg
+}
+
+func GetDefaultLogLevl() *zap.AtomicLevel {
+	return logLvl
+}
+
+func GetDefaultTraceLogConfig() zap.Config {
+	return traceLogCfg
+}
+
+func GetDefaultTraceLogLevl() *zap.AtomicLevel {
+	return traceLogLvl
+}
+
 func createDefaultConfiguration() {
 
 	logFormat := DefaultLogFormat
@@ -92,14 +108,14 @@ func createDefaultConfiguration() {
 	lvl := cfg.Level
 
 	// assign single lvl instance to global level
-	LogLvl = &lvl
+	logLvl = &lvl
 
 	// assigning default configuration to global Cfg
-	LogCfg = cfg
+	logCfg = cfg
 }
 
 func createTraceConfiguration() {
-	cfg := LogCfg
+	cfg := logCfg
 
 	if strings.Compare(cfg.Encoding, "console") == 0 {
 		cfg.EncoderConfig.EncodeLevel = traceLevelEncoder
@@ -108,8 +124,8 @@ func createTraceConfiguration() {
 	lvl := cfg.Level
 	lvl.SetLevel(zapcore.DebugLevel)
 
-	TraceLogCfg = cfg
-	TraceLogLvl = &lvl
+	traceLogCfg = cfg
+	traceLogLvl = &lvl
 }
 
 func nameEncoder(loggerName string, enc zapcore.PrimitiveArrayEncoder) {
