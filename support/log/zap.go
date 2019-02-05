@@ -137,10 +137,21 @@ func toZapLogLevel(level Level) zapcore.Level {
 	return zapcore.InfoLevel
 }
 
-func newZapRootLogger(name string, format Format) Logger {
+func newZapRootLogger(name string) Logger {
 
-	zl, lvl, _ := newZapLogger(format)
-	zl = appendCore(zl)
+	zl, lvl, _ := newZapLogger()
+
+	// appending all available cores together
+	if len(zapcores.GetZapCoreMap()) != 0 {
+		for _, value := range zapcores.GetZapCoreMap() {
+			zl = zl.WithOptions(
+				zap.WrapCore(
+					func(c zapcore.Core) zapcore.Core {
+						return zapcore.NewTee(value, zl.Core())
+					}))
+		}
+	}
+
 	var rootLogger Logger
 	if name == "" {
 		rootLogger = &zapLoggerImpl{loggerLevel: lvl, mainLogger: zl.Sugar()}
@@ -149,78 +160,37 @@ func newZapRootLogger(name string, format Format) Logger {
 	}
 
 	if traceEnabled {
-		tl, _, _ := newZapTraceLogger(format)
-		tl = appendCore(tl)
+		tl, _, _ := newZapTraceLogger()
+
+		// appending all available cores together for tracing logs
+		if len(zapcores.GetZapTraceCoreMap()) != 0 {
+			for _, value := range zapcores.GetZapTraceCoreMap() {
+				tl = tl.WithOptions(
+					zap.WrapCore(
+						func(c zapcore.Core) zapcore.Core {
+							return zapcore.NewTee(value, tl.Core())
+						}))
+			}
+		}
+
 		traceLogger = tl.Sugar()
 	}
 
 	return rootLogger
 }
 
-func appendCore(zapLogr *zap.Logger) *zap.Logger {
-	if len(zapcores.GetZapCoreMap()) != 0 {
-		for _, value := range zapcores.GetZapCoreMap() {
-			zapLogr = zapLogr.WithOptions(
-				zap.WrapCore(
-					func(c zapcore.Core) zapcore.Core {
-						return zapcore.NewTee(value, zapLogr.Core())
-					}))
-		}
-	}
-	return zapLogr
+func newZapLogger() (*zap.Logger, *zap.AtomicLevel, error) {
+
+	zl, err := zapcores.LogCfg.Build(zap.AddCallerSkip(1))
+
+	return zl, zapcores.LogLvl, err
 }
 
-func newZapLogger(logFormat Format) (*zap.Logger, *zap.AtomicLevel, error) {
-	cfg := zap.NewProductionConfig()
-	cfg.DisableCaller = true
+func newZapTraceLogger() (*zap.Logger, *zap.AtomicLevel, error) {
 
-	eCfg := cfg.EncoderConfig
-	eCfg.TimeKey = "timestamp"
-	//eCfg.EncodeTime = zapcore.ISO8601TimeEncoder
-	eCfg.EncodeTime = zapcore.EpochNanosTimeEncoder
+	zl, err := zapcores.TraceLogCfg.Build(zap.AddCallerSkip(1))
 
-	if logFormat == FormatConsole {
-		eCfg.EncodeLevel = zapcore.CapitalLevelEncoder
-		cfg.Encoding = "console"
-		eCfg.EncodeName = nameEncoder
-	}
-
-	cfg.EncoderConfig = eCfg
-
-	lvl := cfg.Level
-	zl, err := cfg.Build(zap.AddCallerSkip(1))
-
-	return zl, &lvl, err
-}
-
-func newZapTraceLogger(logFormat Format) (*zap.Logger, *zap.AtomicLevel, error) {
-	cfg := zap.NewProductionConfig()
-	eCfg := cfg.EncoderConfig
-	eCfg.TimeKey = "timestamp"
-	eCfg.EncodeTime = zapcore.ISO8601TimeEncoder
-
-	if logFormat == FormatConsole {
-		eCfg.EncodeLevel = zapcore.CapitalLevelEncoder
-		cfg.Encoding = "console"
-		eCfg.EncodeName = nameEncoder
-		eCfg.EncodeLevel = traceLevelEncoder
-	}
-
-	cfg.EncoderConfig = eCfg
-
-	lvl := cfg.Level
-	lvl.SetLevel(zapcore.DebugLevel)
-	zl, err := cfg.Build(zap.AddCallerSkip(1))
-
-	return zl, &lvl, err
-}
-
-func traceLevelEncoder(l zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString("[TRACE]")
-}
-
-func nameEncoder(loggerName string, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString("[" + loggerName + "] -")
+	return zl, zapcores.TraceLogLvl, err
 }
 
 func newZapChildLogger(logger Logger, name string) (Logger, error) {
