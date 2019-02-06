@@ -26,16 +26,16 @@ type defConfigImpl struct {
 
 // DefConfig returns default configuration values
 type DefConfig interface {
-	GetDefaultLogConfig() zap.Config
-	GetDefaultLogLevl() *zap.AtomicLevel
-	GetDefaultTraceLogConfig() zap.Config
-	GetDefaultTraceLogLevl() *zap.AtomicLevel
+	GetDefLogConfig() zap.Config
+	GetDefLogLvl() *zap.AtomicLevel
+	GetDefTraceLogConfig() zap.Config
+	GetDefTraceLogLvl() *zap.AtomicLevel
 }
 
 var defCfg DefConfig
 
 func init() {
-	defCfg = createDefaultConfiguration()
+	defCfg = createDefConfiguration()
 }
 
 // GetDefConfig returns default configuration
@@ -43,23 +43,23 @@ func GetDefConfig() DefConfig {
 	return defCfg
 }
 
-func (d *defConfigImpl) GetDefaultLogConfig() zap.Config {
+func (d *defConfigImpl) GetDefLogConfig() zap.Config {
 	return d.logConfig
 }
 
-func (d *defConfigImpl) GetDefaultLogLevl() *zap.AtomicLevel {
+func (d *defConfigImpl) GetDefLogLvl() *zap.AtomicLevel {
 	return d.logLevel
 }
 
-func (d *defConfigImpl) GetDefaultTraceLogConfig() zap.Config {
+func (d *defConfigImpl) GetDefTraceLogConfig() zap.Config {
 	return d.traceLogConfig
 }
 
-func (d *defConfigImpl) GetDefaultTraceLogLevl() *zap.AtomicLevel {
+func (d *defConfigImpl) GetDefTraceLogLvl() *zap.AtomicLevel {
 	return d.traceLogLevel
 }
 
-func createDefaultConfiguration() DefConfig {
+func createDefConfiguration() DefConfig {
 
 	logFormat := DefaultLogFormat
 	envLogFormat := strings.ToUpper(os.Getenv(EnvKeyLogFormat))
