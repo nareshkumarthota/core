@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 
+	"github.com/project-flogo/core/support/log/config"
 	"github.com/project-flogo/core/support/log/zapcores"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -181,16 +182,16 @@ func newZapRootLogger(name string) Logger {
 
 func newZapLogger() (*zap.Logger, *zap.AtomicLevel, error) {
 
-	zl, err := zapcores.GetDefConfig().GetDefaultLogConfig().Build(zap.AddCallerSkip(1))
+	zl, err := config.GetDefConfig().GetDefaultLogConfig().Build(zap.AddCallerSkip(1))
 
-	return zl, zapcores.GetDefConfig().GetDefaultLogLevl(), err
+	return zl, config.GetDefConfig().GetDefaultLogLevl(), err
 }
 
 func newZapTraceLogger() (*zap.Logger, *zap.AtomicLevel, error) {
 
-	zl, err := zapcores.GetDefConfig().GetDefaultTraceLogConfig().Build(zap.AddCallerSkip(1))
+	zl, err := config.GetDefConfig().GetDefaultTraceLogConfig().Build(zap.AddCallerSkip(1))
 
-	return zl, zapcores.GetDefConfig().GetDefaultTraceLogLevl(), err
+	return zl, config.GetDefConfig().GetDefaultTraceLogLevl(), err
 }
 
 func newZapChildLogger(logger Logger, name string) (Logger, error) {

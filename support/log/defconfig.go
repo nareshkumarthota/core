@@ -1,4 +1,4 @@
-package zapcores
+package log
 
 import (
 	"os"
