@@ -143,8 +143,8 @@ func newZapRootLogger(name string) Logger {
 	zl, lvl, _ := newZapLogger()
 
 	// appending all available cores together
-	if len(zapcores.GetZapCoreMap()) != 0 {
-		for _, value := range zapcores.GetZapCoreMap() {
+	if len(zapcores.RegisteredCores()) != 0 {
+		for _, value := range zapcores.RegisteredCores() {
 			zl = zl.WithOptions(
 				zap.WrapCore(
 					func(c zapcore.Core) zapcore.Core {
@@ -164,8 +164,8 @@ func newZapRootLogger(name string) Logger {
 		tl, _, _ := newZapTraceLogger()
 
 		// appending all available cores together for tracing logs
-		if len(zapcores.GetZapTraceCoreMap()) != 0 {
-			for _, value := range zapcores.GetZapTraceCoreMap() {
+		if len(zapcores.RegisteredTraceCores()) != 0 {
+			for _, value := range zapcores.RegisteredTraceCores() {
 				tl = tl.WithOptions(
 					zap.WrapCore(
 						func(c zapcore.Core) zapcore.Core {

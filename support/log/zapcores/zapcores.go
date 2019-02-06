@@ -25,12 +25,12 @@ func RegisterTraceLogCore(name string, core zapcore.Core) {
 	zapTraceCoreMap[name] = core
 }
 
-// GetZapCoreMap returns complete log core map
-func GetZapCoreMap() map[string]zapcore.Core {
+// RegisteredCores returns complete log core map
+func RegisteredCores() map[string]zapcore.Core {
 	return zapCoreMap
 }
 
-// GetZapTraceCoreMap returns complete trace log core map
-func GetZapTraceCoreMap() map[string]zapcore.Core {
+// RegisteredTraceCores returns complete trace log core map
+func RegisteredTraceCores() map[string]zapcore.Core {
 	return zapTraceCoreMap
 }
