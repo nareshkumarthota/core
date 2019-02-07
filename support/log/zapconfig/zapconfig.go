@@ -1,4 +1,4 @@
-package config
+package zapconfig
 
 import (
 	"os"
@@ -17,49 +17,49 @@ const (
 	FormatJSON
 )
 
-type defConfigImpl struct {
+type defaultCfgImpl struct {
 	logConfig      zap.Config
 	logLevel       *zap.AtomicLevel
 	traceLogConfig zap.Config
 	traceLogLevel  *zap.AtomicLevel
 }
 
-// DefConfig returns default configuration values
-type DefConfig interface {
-	GetDefLogConfig() zap.Config
-	GetDefLogLvl() *zap.AtomicLevel
-	GetDefTraceLogConfig() zap.Config
-	GetDefTraceLogLvl() *zap.AtomicLevel
+// DefaultConfig returns default configuration values
+type DefaultConfig interface {
+	LogCfg() zap.Config
+	LogLvl() *zap.AtomicLevel
+	TraceLogCfg() zap.Config
+	TraceLogLvl() *zap.AtomicLevel
 }
 
-var defCfg DefConfig
+var defaultCfg DefaultConfig
 
 func init() {
-	defCfg = createDefConfiguration()
+	defaultCfg = createDefaultConfiguration()
 }
 
-// GetDefConfig returns default configuration
-func GetDefConfig() DefConfig {
-	return defCfg
+// DefaultCfg returns default configuration
+func DefaultCfg() DefaultConfig {
+	return defaultCfg
 }
 
-func (d *defConfigImpl) GetDefLogConfig() zap.Config {
+func (d *defaultCfgImpl) LogCfg() zap.Config {
 	return d.logConfig
 }
 
-func (d *defConfigImpl) GetDefLogLvl() *zap.AtomicLevel {
+func (d *defaultCfgImpl) LogLvl() *zap.AtomicLevel {
 	return d.logLevel
 }
 
-func (d *defConfigImpl) GetDefTraceLogConfig() zap.Config {
+func (d *defaultCfgImpl) TraceLogCfg() zap.Config {
 	return d.traceLogConfig
 }
 
-func (d *defConfigImpl) GetDefTraceLogLvl() *zap.AtomicLevel {
+func (d *defaultCfgImpl) TraceLogLvl() *zap.AtomicLevel {
 	return d.traceLogLevel
 }
 
-func createDefConfiguration() DefConfig {
+func createDefaultConfiguration() DefaultConfig {
 
 	logFormat := DefaultLogFormat
 	envLogFormat := strings.ToUpper(os.Getenv(EnvKeyLogFormat))
@@ -95,14 +95,14 @@ func createDefConfiguration() DefConfig {
 	tlvl := tcfg.Level
 	tlvl.SetLevel(zapcore.DebugLevel)
 
-	defCfg := &defConfigImpl{
+	defaultCfg := &defaultCfgImpl{
 		logConfig:      cfg,
 		logLevel:       &lvl,
 		traceLogConfig: tcfg,
 		traceLogLevel:  &tlvl,
 	}
 
-	return defCfg
+	return defaultCfg
 }
 
 func nameEncoder(loggerName string, enc zapcore.PrimitiveArrayEncoder) {

@@ -4,33 +4,33 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// zapCoreMap holds logger core impl
-var zapCoreMap map[string]zapcore.Core
+// zapCores holds log cores
+var zapCores map[string]zapcore.Core
 
-// zapTraceCoreMap holds trace logger core impl
-var zapTraceCoreMap map[string]zapcore.Core
+// zapTraceCores holds trace log cores
+var zapTraceCores map[string]zapcore.Core
 
 func init() {
-	zapCoreMap = make(map[string]zapcore.Core)
-	zapTraceCoreMap = make(map[string]zapcore.Core)
+	zapCores = make(map[string]zapcore.Core)
+	zapTraceCores = make(map[string]zapcore.Core)
 }
 
-// RegisterLogCore adds core to zapcoremap
+// RegisterLogCore adds core to zapCores
 func RegisterLogCore(name string, core zapcore.Core) {
-	zapCoreMap[name] = core
+	zapCores[name] = core
 }
 
-// RegisterTraceLogCore adds trace core to zapTraceCoreMap
+// RegisterTraceLogCore adds trace core to zapTraceCores
 func RegisterTraceLogCore(name string, core zapcore.Core) {
-	zapTraceCoreMap[name] = core
+	zapTraceCores[name] = core
 }
 
 // RegisteredCores returns complete log core map
 func RegisteredCores() map[string]zapcore.Core {
-	return zapCoreMap
+	return zapCores
 }
 
 // RegisteredTraceCores returns complete trace log core map
 func RegisteredTraceCores() map[string]zapcore.Core {
-	return zapTraceCoreMap
+	return zapTraceCores
 }
